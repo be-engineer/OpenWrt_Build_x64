@@ -4,7 +4,7 @@
 # By：GXNAS
 #===============================================
 
-name: OpenWrt_Build_2305_x64_soot
+name: OpenWrt_Build_2305_x64_精简版
 
 on:
   workflow_dispatch:

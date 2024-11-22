@@ -4,16 +4,46 @@
 # By：GXNAS
 #===============================================
 
-name: OpenWrt_Build_2305_x64_gxnas
+name: OpenWrt_Build_2305_x64_旁路由
 
 on:
-  repository_dispatch:
   workflow_dispatch:
     inputs:
-      checkupdates66:
-        description: '启动OpenWrt_Build_2305_x64_gxnas编译'
+      CPU_SELECTION:
+        description: 'CPU优选,增加编译速度'
         required: true
+        default: '默认'
+        type: choice
+        options:
+          - '默认'
+          - '8370C'
+          - '8272CL'
+          - '8171M'
+      SSH_ACTION:
+        description: 'SSH远程配置固件'
+        required: false
+        default: 'false'
+        type: boolean
+      UPLOAD_FIRMWARE:
+        description: '上传固件到 Github Artifacts'
+        required: false
+        default: 'false'
+        type: boolean
+      UPLOAD_RELEASE:
+        description: '发布固件到 Github Releases'
+        required: false
         default: 'true'
+        type: boolean
+      CACHEWRTBUILD_SWITCH:
+        description: '缓存加速编译'
+        required: false
+        default: 'true'
+        type: boolean
+      COMPILATION_INFORMATION:
+        description: '是否显示编译信息'
+        required: false
+        default: 'true'
+        type: boolean
   schedule:
     - cron: 0 2 * * 5
 
@@ -191,6 +221,24 @@ jobs:
         sed -i 's/KERNEL_PATCHVER:=*.*/KERNEL_PATCHVER:=6.6/g' target/linux/x86/Makefile
         
         #sed -i 's/KERNEL_TESTING_PATCHVER:=*.*/KERNEL_TESTING_PATCHVER:=6.6/g' target/linux/x86/Makefile
+
+    - name: SSH远程连接（make menuconfig）
+      if: env.SSH_ACTION == 'true'
+      uses: danshui-git/debugger-action@main
+
+    - name: 生成"${{ matrix.target }}"配置文件
+      if: env.REPO_TOKEN
+      id: compile
+      run: |
+        cd openwrt
+        source ${BUILD_PATH}/common.sh && Diy_menu6
+        
+    - name: 上传"${{ matrix.target }}"配置文件在 Github Artifacts
+      if: steps.compile.outcome == 'success'
+      uses: actions/upload-artifact@main
+      with:
+        name: .config_${{ env.SOURCE }}_${{ env.LUCI_EDITION }}_${{ env.TARGET_PROFILE }}_${{ env.Firmware_Date }}
+        path: openwrt/build_logo/config.txt
 
     - name: Output compilation information
       run: |
