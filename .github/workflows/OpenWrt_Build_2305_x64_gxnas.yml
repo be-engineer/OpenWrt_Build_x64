@@ -9,6 +9,10 @@ name: OpenWrt_Build_2305_x64_æ—è·¯ç”±
 on:
   workflow_dispatch:
     inputs:
+      checkupdates66:
+        description: 'Æô¶¯OpenWrt_Build_2305_x64_all±àÒë'
+        required: true
+        default: 'true'    
       CPU_SELECTION:
         description: 'CPUä¼˜é€‰,å¢åŠ ç¼–è¯‘é€Ÿåº¦'
         required: true
