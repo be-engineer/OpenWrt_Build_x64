@@ -7,8 +7,7 @@
 name: OpenWrt_Build_2305_x64_旁路由
 
 on:
-  #workflow_dispatch:
-  repository_dispatch:
+  workflow_dispatch:
     inputs:
       checkupdates66:
         description: '启动OpenWrt_Build_2305_x64_all编译'
