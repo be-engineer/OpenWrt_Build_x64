@@ -205,6 +205,7 @@ jobs:
     - name: Install feeds
       run: cd openwrt && ./scripts/feeds install -a
 
+
     - name: Load custom configuration
       run: |
         [ -e files ] && mv files openwrt/files
@@ -221,6 +222,24 @@ jobs:
         sed -i 's/KERNEL_PATCHVER:=*.*/KERNEL_PATCHVER:=6.6/g' target/linux/x86/Makefile
         
         #sed -i 's/KERNEL_TESTING_PATCHVER:=*.*/KERNEL_TESTING_PATCHVER:=6.6/g' target/linux/x86/Makefile
+
+    - name: SSH远程连接（make menuconfig）
+      if: env.SSH_ACTION == 'true'
+      uses: danshui-git/debugger-action@main
+
+    - name: 生成"${{ matrix.target }}"配置文件
+      if: env.REPO_TOKEN
+      id: compile
+      run: |
+        cd openwrt
+        source ${BUILD_PATH}/common.sh && Diy_menu6
+        
+    - name: 上传"${{ matrix.target }}"配置文件在 Github Artifacts
+      if: steps.compile.outcome == 'success'
+      uses: actions/upload-artifact@main
+      with:
+        name: .config_${{ env.SOURCE }}_${{ env.LUCI_EDITION }}_${{ env.TARGET_PROFILE }}_${{ env.Firmware_Date }}
+        path: openwrt/build_logo/config.txt
 
     - name: Output compilation information
       run: |
